@@ -10,14 +10,15 @@
         /* Container for the image and text */
         .container {
             position: relative;
-            width: 100%; /* Adjust to fit your display */
-            height: auto;
+            width: 100vw; /* Full viewport width */
+            height: 100vh; /* Full viewport height */
+            overflow: hidden; /* Prevent scrolling */
         }
-
-        /* Style for the image */
+        
         .menu-image {
-            width: 800px; /* Set a specific width */
-            height: 600px; /* Set a specific height */
+            width: 100%; /* Full width of the container */
+            height: 100%; /* Full height of the container */
+            object-fit: cover; /* Ensure the image covers the container without distortion */
             display: block;
         }
 
