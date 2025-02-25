@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu with Dynamic Text</title>
+    <!-- Include Gagalin font from Google Fonts (if available) -->
+    <link href="https://fonts.googleapis.com/css2?family=Gagalin&display=swap" rel="stylesheet">
+    <style>
+        /* Container for the image and text */
+        .container {
+            position: relative;
+            width: 100%; /* Adjust to fit your display */
+            height: 100%;
+        }
+
+        /* Style for the image */
+        .menu-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Style for the text overlay */
+        .text-overlay {
+            position: absolute;
+            left: 50px; /* 50px from the left */
+            bottom: 200px; /* 200px from the bottom */
+            width: 550px; /* Width of the box (600px - 50px) */
+            color: white; /* Text color */
+            font-family: 'Gagalin', sans-serif; /* Use Gagalin font */
+            font-size: 25.33px; /* 13pt ≈ 17.33px */
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+            padding: 10px; /* Padding inside the box */
+            border-radius: 5px; /* Rounded corners */
+            box-sizing: border-box; /* Include padding in width/height */
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Two columns */
+            gap: 10px; /* Spacing between columns */
+            align-items: start; /* Align items to the top */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Replace with your image URL -->
+        <img src="menupage3.jpg" alt="Menu Background" class="menu-image">
+        <!-- Dynamic text will go here -->
+        <div class="text-overlay" id="dynamic-text">Loading...</div>
+    </div>
+
+    <!-- Firebase SDK (compat version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "crossroadsmenu-4ae0b.firebaseapp.com",
+            databaseURL: "https://crossroadsmenu-4ae0b-default-rtdb.firebaseio.com/",
+            projectId: "crossroadsmenu-4ae0b",
+            storageBucket: "crossroadsmenu-4ae0b.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Function to fetch dynamic text from Firebase
+        function fetchDynamicText() {
+            const textRef = database.ref('menuItems'); // Path to your menu items
+            textRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Filter and format the text
+                    const items = [];
+                    for (const key in data) {
+                        if (data[key].available) { // Only include available items
+                            items.push(data[key].name); // Add the item name
+                        }
+                    }
+
+                    // Split items into two columns
+                    const half = Math.ceil(items.length / 2);
+                    const column1 = items.slice(0, half); // First half of items
+                    const column2 = items.slice(half); // Second half of items
+
+                    // Create HTML for the two columns
+                    let formattedText = `
+                        <div>${column1.join('<br>')}</div>
+                        <div>${column2.join('<br>')}</div>
+                    `;
+
+                    // Update the text overlay
+                    document.getElementById('dynamic-text').innerHTML = formattedText;
+                } else {
+                    document.getElementById('dynamic-text').innerText = "No items available.";
+                }
+            }, (error) => {
+                console.error('Error fetching data:', error);
+                document.getElementById('dynamic-text').innerText = "Error loading items.";
+            });
+        }
+
+        // Fetch text initially
+        fetchDynamicText();
+    </script>
+</body>
+</html>
